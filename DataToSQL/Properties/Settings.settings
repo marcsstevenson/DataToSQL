@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='iso-8859-1'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DatabaseComparision.DisplayLayer.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="LastConnectionString1" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">server=Prod_Server;user id=sa; pwd=!N0password; database=Signet</Value>
+    </Setting>
+    <Setting Name="LastConnectionString2" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">server=Prod_Server;user id=sa; pwd=!N0password; database=Signet</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
