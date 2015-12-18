@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -29,7 +30,7 @@ namespace DisplayLayer
 				{
 					try
 					{
-						strReturn = Crypto.Encryption.Decrypt(clsFileController.ReadFileToEnd(strLastConnectionString1FileName).Trim());
+						strReturn = clsFileController.ReadFileToEnd(strLastConnectionString1FileName).Trim();
 					}
 					catch
 					{
@@ -46,7 +47,7 @@ namespace DisplayLayer
 					clsFileController.DeleteFile(strLastConnectionString1FileName);
 				}
 
-				clsFileController.WriteTextToFile(strLastConnectionString1FileName, Crypto.Encryption.Encrypt(value));
+				clsFileController.WriteTextToFile(strLastConnectionString1FileName, value);
 			}
 		}
 
@@ -60,7 +61,7 @@ namespace DisplayLayer
 				{
 					try
 					{
-						strReturn = Crypto.Encryption.Decrypt(clsFileController.ReadFileToEnd(strLastConnectionString2FileName).Trim());
+						strReturn = clsFileController.ReadFileToEnd(strLastConnectionString2FileName).Trim();
 					}
 					catch
 					{
@@ -77,7 +78,7 @@ namespace DisplayLayer
 					clsFileController.DeleteFile(strLastConnectionString2FileName);
 				}
 
-				clsFileController.WriteTextToFile(strLastConnectionString2FileName, Crypto.Encryption.Encrypt(value));
+				clsFileController.WriteTextToFile(strLastConnectionString2FileName, value);
 			}
 		}
 
@@ -91,7 +92,7 @@ namespace DisplayLayer
 				{
 					try
 					{
-						strReturn = Crypto.Encryption.Decrypt(clsFileController.ReadFileToEnd(strLastSQL).Trim());
+						strReturn = clsFileController.ReadFileToEnd(strLastSQL).Trim();
 					}
 					catch
 					{
@@ -108,7 +109,7 @@ namespace DisplayLayer
 					clsFileController.DeleteFile(strLastSQL);
 				}
 
-				clsFileController.WriteTextToFile(strLastSQL, Crypto.Encryption.Encrypt(value));
+				clsFileController.WriteTextToFile(strLastSQL, value);
 			}
 		}
 
@@ -119,9 +120,33 @@ namespace DisplayLayer
 
 			var generateResponse = new GenerateResponse();
 
-			try
+            var myConnection = new SqlConnection(this.txtConnectionString1.Text);
+
+            try
 			{
-				objDR = new DataLayer.DataRunner(this.txtConnectionString1.Text);
+                myConnection.Open();
+                var myCommand = new SqlCommand(this.txtConnectionString1.Text, myConnection);
+                SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
+
+                DataSet customers = new DataSet();
+                adapter.Fill(customers, "Customers");
+
+                using (SqlDataReader oReader = myCommand.ExecuteReader())
+                {
+                    oReader.Read()
+
+                    while (oReader.Read())
+                    {
+                        matchingPerson.firstName = oReader["FirstName"].ToString();
+                        matchingPerson.lastName = oReader["LastName"].ToString();
+                    }
+
+                    myConnection.Close();
+                }
+
+
+
+                objDR = new DataLayer.DataRunner(this.txtConnectionString1.Text);
 				dtReturn = objDR.ExecuteDataTableSQL(this.txtSQLSelect.Text);
 				this.lblCount.Text = dtReturn.Rows.Count.ToString();
 
@@ -134,8 +159,8 @@ namespace DisplayLayer
 			}
 			finally
 			{
-				objDR.Dispose();
-			}
+                myConnection.Close();
+            }
 
 			//Save the connection string and the SQL
 			this.LastConnectionString1 = this.txtConnectionString1.Text;
